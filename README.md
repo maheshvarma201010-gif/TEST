@@ -5,10 +5,10 @@ A modern Telegram bot to stream anime videos internally on a custom watch page. 
 ## 🚀 Features
 - **Internal Streaming:** Hidden backend streaming with chunked transfer support.
 - **Modern UI:** Dark mode, glassmorphism, and neon gradient design.
-- **Track Detection:** Auto-detect and switch audio/subtitle tracks.
+- **Track Detection:** Auto-detect and switch audio/subtitle tracks via MediaInfo.
 - **Security:** HMAC expiring tokens to prevent hotlinking.
 - **Mobile Optimized:** Fully responsive UI for a seamless mobile experience.
-- **Persistence:** Save watch progress and resume playback.
+- **One-Click Deploy:** Ready for Docker, Render, and Termux.
 
 ---
 
@@ -23,15 +23,29 @@ A modern Telegram bot to stream anime videos internally on a custom watch page. 
 1. Fork this repository to your GitHub account.
 2. Create a new "Web Service" on [Render](https://render.com).
 3. Connect your forked repository.
-4. Add the following Environment Variables:
+4. Render will automatically detect the `Dockerfile` or `render.yaml`.
+5. Add the following Environment Variables:
    - `API_ID`
    - `API_HASH`
    - `BOT_TOKEN`
    - `MONGO_URI`
-   - `BASE_URL`: Your Render service URL (e.g., `https://anime-watch-bot.onrender.com`)
-5. Deploy!
+   - `BASE_URL`: Your Render service URL (e.g., `https://your-app.onrender.com`)
+6. Deploy!
 
-### Step 3: Deploy on Termux (Mobile)
+### Step 3: Deploy with Docker
+```bash
+docker build -t anime-bot .
+docker run -d \
+  -e API_ID=your_id \
+  -e API_HASH=your_hash \
+  -e BOT_TOKEN=your_token \
+  -e MONGO_URI=your_mongo \
+  -e BASE_URL=your_url \
+  -p 8000:8000 \
+  anime-bot
+```
+
+### Step 4: Deploy on Termux (Mobile)
 One-click deployment for Termux users:
 
 1. Open Termux and run:
@@ -56,6 +70,7 @@ One-click deployment for Termux users:
 
 ## 📂 Project Structure
 - `bot.py`: Main entry point (Bot + FastAPI Server).
+- `Dockerfile`: Container configuration for cloud deployment.
 - `templates/`: HTML templates for the watch page.
 - `static/`: CSS and JS assets.
 - `requirements.txt`: Python dependencies.
