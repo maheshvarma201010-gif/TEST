@@ -27,7 +27,7 @@ API_HASH = os.environ.get("API_HASH", "")
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 MONGO_URI = os.environ.get("MONGO_URI", "")
 BASE_URL = os.environ.get("BASE_URL", "http://localhost:8000").rstrip("/")
-SECRET_KEY = os.environ.get("SECRET_KEY", secrets.token_hex(32))
+SECRET_KEY = os.environ.get("SECRET_KEY", "anime-stream-secret-key-12345")
 
 # Logging
 logging.basicConfig(level=logging.INFO)
@@ -127,10 +127,11 @@ async def detect_tracks(file_id: str):
                     "language": track.language or track.title or f"Sub {len(subtitle_tracks)+1}",
                     "codec": track.format
                 })
-
-        os.remove(tmp_path)
     except Exception as e:
         logger.error(f"Error detecting tracks: {e}")
+    finally:
+        if 'tmp_path' in locals() and os.path.exists(tmp_path):
+            os.remove(tmp_path)
 
     return audio_tracks, subtitle_tracks
 
