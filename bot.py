@@ -51,7 +51,8 @@ async def lifespan(app: FastAPI):
     await bot.start()
     logger.info("Bot started")
     # Ensure indexes
-    await files_col.create_index("unique_id", unique=True)
+    if files_col is not None:
+        await files_col.create_index("unique_id", unique=True)
     yield
     await bot.stop()
     logger.info("Bot stopped")

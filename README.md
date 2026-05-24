@@ -1,85 +1,103 @@
 # 🎬 Telegram Anime Stream Bot
 
-A modern Telegram bot to stream anime videos internally on a custom watch page. No external players, no direct links—pure OTT experience.
+A modern, high-performance Telegram bot to stream anime videos internally on a custom watch page. Designed for a premium OTT experience with a mobile-first approach.
 
-## 🚀 Features
-- **Internal Streaming:** Hidden backend streaming with chunked transfer support.
-- **Modern UI:** Dark mode, glassmorphism, and neon gradient design.
-- **Track Detection:** Auto-detect and switch audio/subtitle tracks via MediaInfo.
-- **Security:** HMAC expiring tokens to prevent hotlinking.
-- **Mobile Optimized:** Fully responsive UI for a seamless mobile experience.
-- **One-Click Deploy:** Ready for Docker, Render, and Termux.
+## 🌟 Key Features
+- **Hidden Internal Streaming:** Zero exposure of raw Telegram links. 100% secure.
+- **Modern UI:** Ultra-modern dark mode with neon gradients and glassmorphism cards.
+- **Advanced Track Support:** Automated detection and selection of audio and subtitle tracks.
+- **Expiring Watch Tokens:** Secure HMAC-based tokens to prevent link hotlinking.
+- **Chunked Playback:** Optimized HTTP Range requests for instant seeking and low buffering.
+- **Cross-Platform:** Deploy easily on Render, Docker, or Termux.
 
 ---
 
-## 🛠️ Deployment Guide (A to Z)
+## 🛠️ Comprehensive Deployment Guide
 
-### Step 1: Get Your Credentials
-1. **Telegram API:** Go to [my.telegram.org](https://my.telegram.org), login, and create an app to get `API_ID` and `API_HASH`.
-2. **Bot Token:** Message [@BotFather](https://t.me/BotFather) on Telegram to create a bot and get the `BOT_TOKEN`.
-3. **MongoDB:** Create a free cluster at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas), and get your `MONGO_URI`.
+### 1️⃣ Get Your Credentials (Required)
+| Variable | Description | Where to find |
+| :--- | :--- | :--- |
+| `API_ID` | Telegram API ID | [my.telegram.org](https://my.telegram.org) |
+| `API_HASH` | Telegram API Hash | [my.telegram.org](https://my.telegram.org) |
+| `BOT_TOKEN` | Bot Father Token | [@BotFather](https://t.me/BotFather) |
+| `MONGO_URI` | MongoDB Connection URI | [MongoDB Atlas](https://www.mongodb.com/) |
+| `BASE_URL` | Your App's Public URL | e.g. `https://my-anime-bot.onrender.com` |
 
-### Step 2: Deploy on Render (Cloud)
-1. Fork this repository to your GitHub account.
-2. Create a new "Web Service" on [Render](https://render.com).
-3. Connect your forked repository.
-4. Render will automatically detect the `Dockerfile` or `render.yaml`.
-5. Add the following Environment Variables:
-   - `API_ID`
-   - `API_HASH`
-   - `BOT_TOKEN`
-   - `MONGO_URI`
-   - `BASE_URL`: Your Render service URL (e.g., `https://your-app.onrender.com`)
-6. Deploy!
+---
 
-### Step 3: Deploy with Docker
+### 2️⃣ Deploy on Render (Recommended for 24/7)
+1. **Fork** this repository to your GitHub account.
+2. Sign in to [Render.com](https://render.com).
+3. Click **New +** and select **Web Service**.
+4. Connect your GitHub repository.
+5. **Environment:** Render will detect the `Dockerfile`.
+6. **Environment Variables:**
+   - Click "Advanced" -> "Add Environment Variable".
+   - Enter all required credentials (API_ID, API_HASH, etc.).
+   - **IMPORTANT:** Set `BASE_URL` to your Render app URL (e.g. `https://your-app-name.onrender.com`).
+7. **Deploy:** Click **Create Web Service**.
+
+---
+
+### 3️⃣ Deploy with Docker (Self-Hosting)
 ```bash
-docker build -t anime-bot .
+# Build the image
+docker build -t anime-stream-bot .
+
+# Run the container
 docker run -d \
-  -e API_ID=your_id \
-  -e API_HASH=your_hash \
-  -e BOT_TOKEN=your_token \
-  -e MONGO_URI=your_mongo \
-  -e BASE_URL=your_url \
+  --name anime-bot \
   -p 8000:8000 \
-  anime-bot
+  -e API_ID=12345 \
+  -e API_HASH=abcdef \
+  -e BOT_TOKEN=123:abc \
+  -e MONGO_URI=mongodb+srv://... \
+  -e BASE_URL=https://your-domain.com \
+  anime-stream-bot
 ```
 
-### Step 4: Deploy on Termux (Mobile)
-One-click deployment for Termux users:
+---
 
-1. Open Termux and run:
+### 4️⃣ Deploy on Termux (Android Mobile)
+We provide a **One-Click** setup script for Termux.
+
+1. **Install Git & Setup:**
    ```bash
-   pkg install git -y && git clone YOUR_REPO_LINK && cd YOUR_REPO_NAME && chmod +x setup.sh && ./setup.sh
+   pkg update && pkg upgrade -y
+   pkg install git -y
+   git clone YOUR_REPO_LINK
+   cd YOUR_REPO_NAME
+   chmod +x setup.sh
+   ./setup.sh
    ```
-2. Edit the `.env` file with your credentials:
+2. **Configure Environment:**
    ```bash
    nano .env
    ```
-3. Run the bot:
+   *Fill in your credentials.*
+3. **Start the Bot:**
    ```bash
    python bot.py
    ```
-4. (Optional) Run 24/7 with tmux:
+4. **Run 24/7 (via Tmux):**
    ```bash
    tmux
    python bot.py
+   # Press Ctrl+B then D to detach
    ```
 
 ---
 
-## 📂 Project Structure
-- `bot.py`: Main entry point (Bot + FastAPI Server).
-- `Dockerfile`: Container configuration for cloud deployment.
-- `templates/`: HTML templates for the watch page.
-- `static/`: CSS and JS assets.
-- `requirements.txt`: Python dependencies.
-- `setup.sh`: Termux setup script.
+## 📂 Technical Overview
+- **Backend:** Python 3.12, FastAPI, Pyrogram, Motor (MongoDB).
+- **Frontend:** Jinja2 Templates, Plyr.js, Custom CSS (Neon/Glassmorphism).
+- **Streaming:** Chunked HTTP Range proxy for Telegram files.
+- **Track Logic:** `pymediainfo` used for on-the-fly header analysis.
 
-## 📜 Rules
-- **ONLY** watch page links.
-- **NEVER** expose direct stream/download links.
-- **ALL** watching must happen inside the website watch page.
+## 📜 Deployment Rules
+- **No direct links:** The bot will ONLY send watch page links.
+- **Internal Only:** All streaming is proxied through the server for security.
+- **Secure Tokens:** Watch pages use expiring HMAC tokens.
 
 ## ⚖️ License
-MIT License.
+MIT License. Created for the anime community.

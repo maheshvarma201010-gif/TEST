@@ -7,7 +7,7 @@ echo "Starting deployment..."
 pkg update -y && pkg upgrade -y
 
 # Install necessary packages
-pkg install python ffmpeg mediainfo git tmux -y
+pkg install python ffmpeg mediainfo git tmux libmediainfo -y
 
 # Upgrade pip
 pip install -U pip
