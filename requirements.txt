@@ -1,0 +1,10 @@
+pyrogram
+tgcrypto
+fastapi
+uvicorn
+aiohttp
+motor
+jinja2
+python-dotenv
+uvloop
+pymediainfo

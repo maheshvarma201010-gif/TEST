@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ file.title }} - S{{ file.season }}E{{ file.episode }} - Anime Stream</title>
+    <link href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dark-mode">
+    <div class="container">
+        <header>
+            <div class="logo">AnimeStream</div>
+        </header>
+
+        <main>
+            <div class="player-wrapper">
+                <video id="player" playsinline controls data-poster="/static/banner_placeholder.jpg">
+                    <source id="video-source" src="{{ stream_url }}" type="video/mp4" />
+                </video>
+            </div>
+
+            <div class="info-card">
+                <div class="meta-header">
+                    <h1 class="anime-title">{{ file.title }}</h1>
+                    <div class="badges">
+                        <span class="badge quality">{{ file.quality }}</span>
+                        <span class="badge season-ep">S{{ file.season }}E{{ file.episode }}</span>
+                    </div>
+                </div>
+                <p class="episode-title">{{ file.episode_title or "Episode " ~ file.episode }}</p>
+                <div class="tech-info">
+                    <div class="info-item">
+                        <span class="label">Audio Tracks:</span>
+                        <select id="audio-selector" class="selector">
+                            {% for track in file.audio_tracks %}
+                            <option value="{{ track.id }}">{{ track.language }} ({{ track.codec }})</option>
+                            {% endfor %}
+                            {% if not file.audio_tracks %}
+                            <option>Default</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Subtitle Tracks:</span>
+                        <select id="subtitle-selector" class="selector">
+                            <option value="none">None</option>
+                            {% for track in file.subtitle_tracks %}
+                            <option value="{{ track.id }}">{{ track.language }} ({{ track.codec }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="controls-extra">
+                    {% if next_url %}
+                    <a href="{{ next_url }}" id="next-ep" class="btn btn-secondary">Next Episode</a>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.min.js"></script>
+    <script src="/static/js/player.js"></script>
+</body>
+</html>
