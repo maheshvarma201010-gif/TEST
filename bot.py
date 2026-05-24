@@ -97,6 +97,39 @@ def parse_caption(caption):
 
     return metadata
 
+@bot.on_message(filters.command("start"))
+async def start_cmd(client: Client, message: Message):
+    welcome_text = (
+        "👋 **Welcome to Anime Stream Bot!**\n\n"
+        "I can help you stream your anime videos internally with a premium OTT experience.\n\n"
+        "🚀 **How to use:**\n"
+        "1. Send me any video file or document (video).\n"
+        "2. Add a caption like: `🎬 One Piece | S01E01 | 1080p`.\n"
+        "3. I will process it and give you a **Watch Page** link.\n\n"
+        "🛡️ **Rules:**\n"
+        "- Only watch page links are generated.\n"
+        "- No direct stream or download links are shared.\n\n"
+        "Use /help for more info!"
+    )
+    await message.reply_text(welcome_text)
+
+@bot.on_message(filters.command("help"))
+async def help_cmd(client: Client, message: Message):
+    help_text = (
+        "📖 **Help Guide**\n\n"
+        "**Metadata Extraction:**\n"
+        "I extract the title, season, and episode from your caption automatically.\n"
+        "Example caption: `🎬 Naruto S01E05 720p`\n\n"
+        "**Watch Page Features:**\n"
+        "- Modern Glassmorphism UI\n"
+        "- Audio & Subtitle track detection\n"
+        "- Playback speed control\n"
+        "- Resume watching support\n"
+        "- Auto-next episode navigation\n\n"
+        "Simply send a video to get started!"
+    )
+    await message.reply_text(help_text)
+
 async def detect_tracks(file_id: str):
     """
     Download a small chunk of the file and detect tracks using MediaInfo.
