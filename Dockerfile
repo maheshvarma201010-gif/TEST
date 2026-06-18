@@ -1,26 +1,29 @@
-FROM python:3.12-slim
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    libmediainfo-dev \
-    libmediainfo0v5 \
-    build-essential \
-    python3-dev \
-    && rm -rf /var/lib/apt/lists/*
+FROM python:3.11-slim-buster
 
 # Set working directory
 WORKDIR /app
 
-# Copy requirements and install
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    python3-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
 COPY requirements.txt .
+
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy project files
 COPY . .
 
-# Expose port
+# Create logs directory
+RUN mkdir -p logs
+
+# Expose health check port
 EXPOSE 8000
 
-# Start command
-CMD ["python", "bot.py"]
+# Run the application
+CMD ["python3", "main.py"]

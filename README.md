@@ -1,103 +1,109 @@
-# 🎬 Telegram Anime Stream Bot
+# 🤖 Telegram Scraper Bot Framework
 
-A modern, high-performance Telegram bot to stream anime videos internally on a custom watch page. Designed for a premium OTT experience with a mobile-first approach.
+A scalable, modular Telegram Scraper Bot built with Python, Pyrogram, and Docker. This repository serves as a production-ready foundation for various scraper implementations.
 
-## 🌟 Key Features
-- **Hidden Internal Streaming:** Zero exposure of raw Telegram links. 100% secure.
-- **Modern UI:** Ultra-modern dark mode with neon gradients and glassmorphism cards.
-- **Advanced Track Support:** Automated detection and selection of audio and subtitle tracks.
-- **Expiring Watch Tokens:** Secure HMAC-based tokens to prevent link hotlinking.
-- **Chunked Playback:** Optimized HTTP Range requests for instant seeking and low buffering.
-- **Cross-Platform:** Deploy easily on Render, Docker, or Termux.
+## 🚀 Features
 
----
+- **Modular Architecture:** Plug-and-play scraper modules in `bot/modules`.
+- **Async Design:** Fully asynchronous using Pyrogram and Motor (MongoDB).
+- **Docker Ready:** Includes `Dockerfile` and `docker-compose.yml`.
+- **Robust Config:** Environment variable validation using Pydantic.
+- **Security:** Role-based access (Admin/User) and rate limiting.
+- **Health Check:** Built-in FastAPI health check endpoint.
+- **Logging:** Rotating file logs and console output.
+- **Progress Tracking:** Visual progress bars for long-running tasks.
 
-## 🛠️ Comprehensive Deployment Guide
+## 📁 Project Structure
 
-### 1️⃣ Get Your Credentials (Required)
-| Variable | Description | Where to find |
-| :--- | :--- | :--- |
-| `API_ID` | Telegram API ID | [my.telegram.org](https://my.telegram.org) |
-| `API_HASH` | Telegram API Hash | [my.telegram.org](https://my.telegram.org) |
-| `BOT_TOKEN` | Bot Father Token | [@BotFather](https://t.me/BotFather) |
-| `MONGO_URI` | MongoDB Connection URI | [MongoDB Atlas](https://www.mongodb.com/) |
-| `BASE_URL` | Your App's Public URL | e.g. `https://my-anime-bot.onrender.com` |
-
----
-
-### 2️⃣ Deploy on Render (Recommended for 24/7)
-1. **Fork** this repository to your GitHub account.
-2. Sign in to [Render.com](https://render.com).
-3. Click **New +** and select **Web Service**.
-4. Connect your GitHub repository.
-5. **Environment:** Render will detect the `Dockerfile`.
-6. **Environment Variables:**
-   - Click "Advanced" -> "Add Environment Variable".
-   - Enter all required credentials (API_ID, API_HASH, etc.).
-   - **IMPORTANT:** Set `BASE_URL` to your Render app URL (e.g. `https://your-app-name.onrender.com`).
-7. **Deploy:** Click **Create Web Service**.
-
----
-
-### 3️⃣ Deploy with Docker (Self-Hosting)
-```bash
-# Build the image
-docker build -t anime-stream-bot .
-
-# Run the container
-docker run -d \
-  --name anime-bot \
-  -p 8000:8000 \
-  -e API_ID=12345 \
-  -e API_HASH=abcdef \
-  -e BOT_TOKEN=123:abc \
-  -e MONGO_URI=mongodb+srv://... \
-  -e BASE_URL=https://your-domain.com \
-  anime-stream-bot
+```text
+/
+├── bot/                # Core bot logic
+│   ├── handlers/       # Command and callback handlers
+│   ├── modules/        # Scalable scraper modules (Plugins)
+│   ├── helpers/        # Utility helpers (Progress, Rate Limiter)
+│   ├── database/       # MongoDB models and connection
+│   ├── filters/        # Security and role filters
+│   ├── utils/          # Core utilities (Logger, Health Check)
+│   ├── config.py       # Configuration management
+│   └── bot.py          # Bot client initialization
+├── logs/               # Rotating log files
+├── tests/              # Verification and unit tests
+├── Dockerfile          # Docker image definition
+├── docker-compose.yml  # Multi-container orchestration
+├── requirements.txt    # Python dependencies
+├── .env.sample         # Sample environment variables
+├── main.py             # Entry point
+└── README.md           # Documentation
 ```
 
----
+## 🛠️ Setup & Deployment
 
-### 4️⃣ Deploy on Termux (Android Mobile)
-We provide a **One-Click** setup script for Termux.
+### Local Development
 
-1. **Install Git & Setup:**
+1. **Clone the repository:**
    ```bash
-   pkg update && pkg upgrade -y
-   pkg install git -y
-   git clone YOUR_REPO_LINK
-   cd YOUR_REPO_NAME
-   chmod +x setup.sh
-   ./setup.sh
-   ```
-2. **Configure Environment:**
-   ```bash
-   nano .env
-   ```
-   *Fill in your credentials.*
-3. **Start the Bot:**
-   ```bash
-   python bot.py
-   ```
-4. **Run 24/7 (via Tmux):**
-   ```bash
-   tmux
-   python bot.py
-   # Press Ctrl+B then D to detach
+   git clone <repo-url>
+   cd <repo-name>
    ```
 
----
+2. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-## 📂 Technical Overview
-- **Backend:** Python 3.12, FastAPI, Pyrogram, Motor (MongoDB).
-- **Frontend:** Jinja2 Templates, Plyr.js, Custom CSS (Neon/Glassmorphism).
-- **Streaming:** Chunked HTTP Range proxy for Telegram files.
-- **Track Logic:** `pymediainfo` used for on-the-fly header analysis.
+3. **Configure environment:**
+   ```bash
+   cp .env.sample .env
+   # Edit .env with your credentials
+   ```
 
-## 📜 Deployment Rules
-- **No direct links:** The bot will ONLY send watch page links.
-- **Internal Only:** All streaming is proxied through the server for security.
-- **Secure Tokens:** Watch pages use expiring HMAC tokens.
+4. **Run the bot:**
+   ```bash
+   python main.py
+   ```
 
-## ⚖️ License
-MIT License. Created for the anime community.
+### Docker Deployment (Recommended)
+
+1. **Configure `.env`** as shown above.
+2. **Start the containers:**
+   ```bash
+   docker-compose up -d
+   ```
+
+## 🔌 Integrating New Scrapers
+
+This framework is designed to be easily extended. To add a new scraper:
+
+1. Create a new file in `bot/modules/` (e.g., `bot/modules/my_scraper.py`).
+2. Define an `init_module(client: Client)` function if you need initialization logic.
+3. Use Pyrogram decorators (`@Client.on_message`) to register commands or handlers within the module.
+4. The bot will automatically load any `.py` file in the `bot/modules` package.
+
+**Example Module:**
+
+```python
+from pyrogram import Client, filters
+
+def init_module(client: Client):
+    # Setup logic here
+    pass
+
+@Client.on_message(filters.command("my_scraper"))
+async def my_scraper_handler(client, message):
+    # Your scraper logic here
+    await message.reply("Scraping started...")
+```
+
+## 🔐 Security & Roles
+
+- **Admins:** Defined by `ADMIN_IDS` in `.env`.
+- **Users:** Any user interacting with the bot (can be further restricted in `bot/filters/roles.py`).
+- **Rate Limiting:** Default limit is 2 commands per 5 seconds (configurable in `bot/helpers/rate_limiter.py`).
+
+## 🏥 Health Check
+
+The bot runs a FastAPI server for health monitoring (useful for Docker/K8s).
+- Endpoint: `http://localhost:8000/health`
+
+## 📄 License
+MIT
