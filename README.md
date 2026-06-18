@@ -32,7 +32,7 @@ A scalable, modular Telegram Scraper Bot built with Python, Pyrogram, and Docker
 ├── docker-compose.yml  # Multi-container orchestration
 ├── requirements.txt    # Python dependencies
 ├── .env.sample         # Sample environment variables
-├── main.py             # Entry point
+├── bot.py              # Entry point
 └── README.md           # Documentation
 ```
 
@@ -59,7 +59,7 @@ A scalable, modular Telegram Scraper Bot built with Python, Pyrogram, and Docker
 
 4. **Run the bot:**
    ```bash
-   python main.py
+   python bot.py
    ```
 
 ### Docker Deployment (Recommended)
