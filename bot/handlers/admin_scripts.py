@@ -1,3 +1,4 @@
+import os
 from pyrogram import Client, filters
 from bot.filters.roles import admin_filter
 from bot.database.scripts_db import scripts_db
@@ -6,20 +7,32 @@ from bot.utils.logger import logger
 @Client.on_message(filters.command("addscript") & admin_filter)
 async def add_script_handler(client, message):
     if len(message.command) < 2:
-        return await message.reply("Usage: `/addscript <keyword>` and then paste the script.")
+        return await message.reply("Usage: `/addscript <keyword>` and then paste the script or reply to a .py file.")
 
     keyword = message.command[1]
+    code = None
 
-    # Check if script code is provided in the same message or if we should wait for the next
-    if message.reply_to_message:
+    # 1. Check if it's a file
+    if message.reply_to_message and message.reply_to_message.document:
+        doc = message.reply_to_message.document
+        if doc.file_name.endswith(".py"):
+            path = await message.reply_to_message.download()
+            with open(path, "r") as f:
+                code = f.read()
+            os.remove(path)
+        else:
+            return await message.reply("Please reply to a valid Python (.py) file.")
+
+    # 2. Check if it's a reply to text
+    elif message.reply_to_message and message.reply_to_message.text:
         code = message.reply_to_message.text
+
+    # 3. Check if it's in the same message
     elif "\n" in message.text:
         code = message.text.split("\n", 1)[1]
-    else:
-        # Prompt for code
-        # In a real bot, you'd use a conversation state here.
-        # For simplicity, let's assume it's sent with the command or replied to.
-        return await message.reply("Please provide the script code by replying to this command or including it in the same message (new line).")
+
+    if not code:
+        return await message.reply("Please provide the script code by:\n1. Including it in the same message after a new line\n2. Replying to a text message containing the code\n3. Replying to a .py file")
 
     await scripts_db.add_script(keyword, code)
     await message.reply(f"✅ Script `{keyword}` saved successfully.")
@@ -68,22 +81,25 @@ async def script_info_handler(client, message):
     text += f"**Updated:** {s.updated_at}\n\n"
     text += f"**Code:**\n```python\n{s.code}\n```"
 
-    await message.reply(text)
+    # If text too long, send code separately
+    if len(text) > 4096:
+        await message.reply(f"**Script:** `{s.keyword}` details (code sent separately)")
+        await message.reply(f"```python\n{s.code}\n```")
+    else:
+        await message.reply(text)
 
-@Client.on_message(filters.command("enablescript") & admin_filter)
-async def enable_script_handler(client, message):
+@Client.on_message(filters.command(["enablescript", "disablescript"]) & admin_filter)
+async def toggle_script_handler(client, message):
     if len(message.command) < 2:
-        return await message.reply("Usage: `/enablescript <keyword>`")
+        return await message.reply(f"Usage: `/{message.command[0]} <keyword>`")
 
     keyword = message.command[1]
-    await scripts_db.set_enabled(keyword, True)
-    await message.reply(f"✅ Script `{keyword}` enabled.")
+    enable = message.command[0] == "enablescript"
+    await scripts_db.set_enabled(keyword, enable)
+    status = "enabled" if enable else "disabled"
+    await message.reply(f"✅ Script `{keyword}` {status}.")
 
-@Client.on_message(filters.command("disablescript") & admin_filter)
-async def disable_script_handler(client, message):
-    if len(message.command) < 2:
-        return await message.reply("Usage: `/disablescript <keyword>`")
-
-    keyword = message.command[1]
-    await scripts_db.set_enabled(keyword, False)
-    await message.reply(f"✅ Script `{keyword}` disabled.")
+# Filter for unauthorized access
+@Client.on_message(filters.command(["addscript", "editscript", "delscript", "listscripts", "scriptinfo", "enablescript", "disablescript"]) & ~admin_filter)
+async def unauthorized_handler(client, message):
+    await message.reply("❌ **Access Denied!** This command is restricted to administrators.")

@@ -11,22 +11,24 @@ class ScraperBot(Client):
             api_hash=settings.API_HASH,
             bot_token=settings.BOT_TOKEN,
             plugins=dict(
-                root="bot",
-                include=["handlers"]
+                root="bot.handlers"
             )
         )
 
     async def start(self):
+        logger.info("Initializing Bot...")
         await db.connect()
         await super().start()
 
         me = await self.get_me()
         logger.info(f"Bot started as @{me.username}")
-        logger.info("Handlers loaded via smart plugins")
+        logger.info(f"Loaded {len(settings.ADMIN_IDS)} Admin IDs")
+        logger.info("Handlers loaded via smart plugins from bot.handlers")
 
     async def stop(self, *args):
+        logger.info("Stopping Bot...")
         await super().stop()
         await db.close()
-        logger.info("Bot stopped")
+        logger.info("Bot stopped.")
 
 bot = ScraperBot()
