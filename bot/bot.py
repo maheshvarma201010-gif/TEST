@@ -12,7 +12,7 @@ class ScraperBot(Client):
             bot_token=settings.BOT_TOKEN,
             plugins=dict(
                 root="bot",
-                include=["handlers", "modules"]
+                include=["handlers"]
             )
         )
 
@@ -22,7 +22,7 @@ class ScraperBot(Client):
 
         me = await self.get_me()
         logger.info(f"Bot started as @{me.username}")
-        logger.info("Handlers and Scraper Modules loaded via smart plugins")
+        logger.info("Handlers loaded via smart plugins")
 
     async def stop(self, *args):
         await super().stop()

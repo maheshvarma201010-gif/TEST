@@ -10,13 +10,12 @@ async def start_command(client, message):
 
     text = (
         f"Hello {message.from_user.first_name}!\n\n"
-        "Welcome to the Telegram Scraper Bot Framework.\n"
-        "This bot is designed to be scalable and supports various scraper modules."
+        "Welcome to the Dynamic Scraper Bot.\n"
+        "Send me a supported URL, and I will automatically process it."
     )
 
     buttons = InlineKeyboardMarkup([
         [
-            InlineKeyboardButton("Help", callback_data="help"),
             InlineKeyboardButton("About", callback_data="about")
         ]
     ])
@@ -26,13 +25,18 @@ async def start_command(client, message):
 @Client.on_message(filters.command("help") & user_filter & rate_limit_check)
 async def help_command(client, message):
     text = (
-        "Available Commands:\n"
-        "/start - Start the bot\n"
-        "/help - Show this help message\n"
-        "/status - Check bot status"
+        "**User Help:**\n"
+        "Simply send a URL that matches a saved script keyword.\n\n"
+        "**Admin Commands:**\n"
+        "/addscript <keyword>\n"
+        "/delscript <keyword>\n"
+        "/listscripts\n"
+        "/scriptinfo <keyword>\n"
+        "/enablescript <keyword>\n"
+        "/disablescript <keyword>"
     )
     await message.reply_text(text)
 
 @Client.on_message(filters.command("admin") & admin_filter)
 async def admin_command(client, message):
-    await message.reply_text("Welcome, Admin! This is a restricted command.")
+    await message.reply_text("Welcome, Admin! You can manage scripts using the admin commands listed in /help.")

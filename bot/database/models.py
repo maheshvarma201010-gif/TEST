@@ -13,6 +13,13 @@ class UserModel(BaseModel):
     created_at: datetime = Field(default_factory=utc_now)
     last_active: datetime = Field(default_factory=utc_now)
 
+class ScriptModel(BaseModel):
+    keyword: str = Field(..., alias="_id")
+    code: str
+    enabled: bool = True
+    created_at: datetime = Field(default_factory=utc_now)
+    updated_at: datetime = Field(default_factory=utc_now)
+
 class TaskModel(BaseModel):
     task_id: str = Field(..., alias="_id")
     user_id: int

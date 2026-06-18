@@ -1,109 +1,74 @@
-# 🤖 Telegram Scraper Bot Framework
+# 🤖 Dynamic Telegram Scraper Bot
 
-A scalable, modular Telegram Scraper Bot built with Python, Pyrogram, and Docker. This repository serves as a production-ready foundation for various scraper implementations.
+A modular Telegram Bot that allows admins to dynamically add, edit, and manage Python scraping scripts that are automatically triggered by URL keywords.
 
 ## 🚀 Features
 
-- **Modular Architecture:** Plug-and-play scraper modules in `bot/modules`.
-- **Async Design:** Fully asynchronous using Pyrogram and Motor (MongoDB).
-- **Docker Ready:** Includes `Dockerfile` and `docker-compose.yml`.
-- **Robust Config:** Environment variable validation using Pydantic.
-- **Security:** Role-based access (Admin/User) and rate limiting.
-- **Health Check:** Built-in FastAPI health check endpoint.
-- **Logging:** Rotating file logs and console output.
-- **Progress Tracking:** Visual progress bars for long-running tasks.
+- **Dynamic Scripting:** Add and manage Python scrapers via Telegram commands.
+- **Auto-Detection:** Automatically matches incoming URLs against saved script keywords.
+- **Sandbox Execution:** Executes scripts in a controlled environment, capturing `print()` output.
+- **Admin Management:** Full CRUD operations for scripts via bot commands.
+- **Async Architecture:** Built with Pyrogram and Motor (MongoDB).
+- **Docker Ready:** Easy deployment with Docker and Docker Compose.
 
 ## 📁 Project Structure
 
 ```text
 /
 ├── bot/                # Core bot logic
-│   ├── handlers/       # Command and callback handlers
-│   ├── modules/        # Scalable scraper modules (Plugins)
-│   ├── helpers/        # Utility helpers (Progress, Rate Limiter)
-│   ├── database/       # MongoDB models and connection
+│   ├── handlers/       # Command, callback, and URL handlers
+│   ├── helpers/        # Script executor and utilities
+│   ├── database/       # MongoDB models and scripts DB
 │   ├── filters/        # Security and role filters
 │   ├── utils/          # Core utilities (Logger, Health Check)
 │   ├── config.py       # Configuration management
 │   └── bot.py          # Bot client initialization
-├── logs/               # Rotating log files
-├── tests/              # Verification and unit tests
 ├── Dockerfile          # Docker image definition
 ├── docker-compose.yml  # Multi-container orchestration
 ├── requirements.txt    # Python dependencies
-├── .env.sample         # Sample environment variables
 ├── bot.py              # Entry point
 └── README.md           # Documentation
 ```
 
 ## 🛠️ Setup & Deployment
 
-### Local Development
-
-1. **Clone the repository:**
-   ```bash
-   git clone <repo-url>
-   cd <repo-name>
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Configure environment:**
-   ```bash
-   cp .env.sample .env
-   # Edit .env with your credentials
-   ```
-
-4. **Run the bot:**
-   ```bash
-   python bot.py
-   ```
-
 ### Docker Deployment (Recommended)
 
-1. **Configure `.env`** as shown above.
+1. **Configure `.env`** (see `.env.sample`).
 2. **Start the containers:**
    ```bash
    docker-compose up -d
    ```
 
-## 🔌 Integrating New Scrapers
+## 🎮 Admin Commands
 
-This framework is designed to be easily extended. To add a new scraper:
+- `/addscript <keyword>` - Add a new script (provide code in same message or reply).
+- `/delscript <keyword>` - Delete a script.
+- `/listscripts` - List all saved scripts and their status.
+- `/scriptinfo <keyword>` - View script code and details.
+- `/enablescript <keyword>` - Enable a script.
+- `/disablescript <keyword>` - Disable a script.
 
-1. Create a new file in `bot/modules/` (e.g., `bot/modules/my_scraper.py`).
-2. Define an `init_module(client: Client)` function if you need initialization logic.
-3. Use Pyrogram decorators (`@Client.on_message`) to register commands or handlers within the module.
-4. The bot will automatically load any `.py` file in the `bot/modules` package.
+## 🔌 Script Example
 
-**Example Module:**
+When adding a script (e.g., keyword `tollyflix`), you can use the `url` variable which is automatically injected:
 
 ```python
-from pyrogram import Client, filters
+import cloudscraper
+from bs4 import BeautifulSoup
 
-def init_module(client: Client):
-    # Setup logic here
-    pass
-
-@Client.on_message(filters.command("my_scraper"))
-async def my_scraper_handler(client, message):
-    # Your scraper logic here
-    await message.reply("Scraping started...")
+bot = cloudscraper.create_scraper()
+print(f"Fetching: {url}")
+res = bot.get(url)
+soup = BeautifulSoup(res.text, "html.parser")
+# ... scraping logic ...
+print("Found links: ...")
 ```
 
-## 🔐 Security & Roles
+## 🔐 Security
 
-- **Admins:** Defined by `ADMIN_IDS` in `.env`.
-- **Users:** Any user interacting with the bot (can be further restricted in `bot/filters/roles.py`).
-- **Rate Limiting:** Default limit is 2 commands per 5 seconds (configurable in `bot/helpers/rate_limiter.py`).
-
-## 🏥 Health Check
-
-The bot runs a FastAPI server for health monitoring (useful for Docker/K8s).
-- Endpoint: `http://localhost:8000/health`
+- Only users listed in `ADMIN_IDS` can manage scripts.
+- Scripts run using `exec()`, so only trusted admins should have access.
 
 ## 📄 License
 MIT
